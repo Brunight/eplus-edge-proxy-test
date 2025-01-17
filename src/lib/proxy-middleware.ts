@@ -22,19 +22,20 @@ export const proxyMiddleware = (req: NextApiRequest, res: NextApiResponse, optio
     '^/api/proxy': '', // Remove /api/proxy prefix
   },
   secure: false,
-  
+  selfHandleResponse: true,
+
   on: {
     proxyRes: responseInterceptor(async (responseBuffer, proxyRes, _req, _res) => {
       const response = responseBuffer.toString('utf8'); // convert buffer to string
 
       if (proxyRes.headers['content-type']?.includes('text/html')) {
         const { document } = parseHTML(response);
-        const head = document.head;
+        const body = document.body;
         const script = document.createElement('script');
         script.textContent = `
           console.log('Hello, World!');
         `;
-        head.appendChild(script);
+        body.appendChild(script);
         return document.toString();
       }
 
